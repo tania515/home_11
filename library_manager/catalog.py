@@ -1,6 +1,8 @@
 # library_manager/catalog.py
 
 from .customException import MyCustomException, BookNotFoundError, BookAlreadyExistsError
+from .utils.data_validation import validate_book_data
+from .utils.formatting import format_book_data
 class Library:
     
     
@@ -21,14 +23,39 @@ class Library:
             print(e) 
             
     def print_all(self):
-        for i in range(len(self.__books)):
-            print(self.__books[i])
+        if not self.__books:
+            print("В библиотеке нет книг")
+        else:
+            for book in self.__books:          
+                print(book)
+                
+    def print_report(self):
+        if not self.__books:
+            print("В библиотеке нет книг")
+        else:
+            for book in self.__books:
+                book_data = {"name": book.name, "author": book.author, "genre": book.genre}
+                if validate_book_data(book_data):
+                    print(format_book_data(book_data))
+
+            
+    def found_book(self,name, author=None, genre=None):
+        try:
+            for i, book in enumerate(self.__books):
+                if (book.name == name) and (author is None or book.author == author) and (genre is None or book.genre == genre):
+                    print(f'Номер в каталоге: {i}')
+                    return book
+            else:
+                raise BookNotFoundError(
+                    f"Книга не найдена по параметрам: "
+                    f"{'' 'название='+name} "
+                    f"{'' if author is None else 'автор='+author} "
+                    f"{'' if genre is None else 'жанр='+genre}"
+                    )
+        except BookNotFoundError as e:
+            print(e) 
         
         
-  
-        
-    
-    
 class Book:
     def __init__(self, name, author, genre):
         self.__name = name
